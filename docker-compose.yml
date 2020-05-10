@@ -1,0 +1,15 @@
+version: "3"
+services:
+    node-bot:
+        container_name: node-bot
+        build:
+            context: ./node-bot
+            dockerfile: Dockerfile
+        volumes:
+            - ./node_main:/app
+            - /app/node_modules
+        environment:
+            PORT: 3001
+        ports:
+            - 3001:3001
+        command: npm run start

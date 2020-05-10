@@ -1,0 +1,24 @@
+{
+  "name": "node-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js --exec 'node'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/ofri84/slack-bot.git"
+  },
+  "author": "ofri ivzori",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "slackbots": "^1.2.0"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0",
+    "nodemon": "^2.0.3"
+  }
+}
