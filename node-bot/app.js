@@ -1,15 +1,12 @@
 const SlackBot = require('slackbots');
-const dotenv = require('dotenv');
 
+const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
 
-dotenv.config();
-
-const botName = process.env.BOT_NAME || 'benny';
 let botUser = null;
 
 const bot = new SlackBot({
-    token: process.env.BOT_TOKEN,
+    token: botToken,
     name: botName,
 });
 
@@ -27,7 +24,6 @@ bot.on('start', async () => {
 
 // Message Handler
 bot.on('message', async (data) => {
-    console.log('message', data);
     const { text = '', type, channel } = data;
     const { id: botId = 'botId' } = botUser || {};
 

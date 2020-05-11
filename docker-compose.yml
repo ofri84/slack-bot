@@ -9,7 +9,5 @@ services:
             - ./node_main:/app
             - /app/node_modules
         environment:
-            PORT: 3001
-        ports:
-            - 3001:3001
+            - BOT_NAME: benny
         command: npm run start
