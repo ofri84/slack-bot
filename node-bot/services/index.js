@@ -1,7 +1,9 @@
+const { handleUnrecognizedService } = require('./misc');
 const { fetchFromYoutube } = require('./youtube');
 
 const isQouting = (char) => {
     return char === '“'
+        || char === '”'
         || char === '’'
         || char === '\"'
         || char === '\'';
@@ -20,27 +22,38 @@ const handleMessage = async (text) => {
 
         if (isQouting(words[index].charAt(0))) {
             const subject = [];
-            const regex = /[\',\",“,’]/g;
+            const regex = /[\',\",“,’,”]/g;
             
-            while (index < words.length && !isQouting(words[index].charAt(words[index].length - 1))) {
+            while (index < words.length) {
                 subject.push(words[index].replace(regex, ''));
+                if (isQouting(words[index].charAt(words[index].length - 1))) {
+                    break;
+                }
                 index++;
             }
 
-            subject.push(words[index].replace(regex, ''));
             reqParams.subject = subject.join(' ');
             index++;
             continue;
         }
 
-        if ((words[index] === 'max' || words[index] === 'maximum')
-            && (words[index + 1] === 'minutes' || words[index + 2] === 'minutes')) {
-            const minutes1 = isNaN(parseInt(words[index + 1])) ? 0 : parseInt(words[index + 1]);
-            const minutes2 = isNaN(parseInt(words[index + 2])) ? 0 : parseInt(words[index + 2]);
-            reqParams.maxMinutes = minutes1 || minutes2;
+        if (words[index] === 'max' || words[index] === 'maximum') {
+            let paramKey = null;
+            if (words[index + 1] === 'minutes' || words[index + 2] === 'minutes') {
+                paramKey = 'maxMinutes';
+            }
+            if (words[index + 1] === 'songs' || words[index + 2] === 'songs') {
+                paramKey = 'maxSongs';
+            }
 
-            index += 2;
-            continue;
+            if (paramKey !== null) {
+                const amount1 = isNaN(parseInt(words[index + 1])) ? 0 : parseInt(words[index + 1]);
+                const amount2 = isNaN(parseInt(words[index + 2])) ? 0 : parseInt(words[index + 2]);
+                reqParams[paramKey] = amount1 || amount2;
+    
+                index += 2;
+                continue;
+            }
         }
 
         if ((words[index] === 'min' || words[index] === 'minimum')
@@ -57,7 +70,7 @@ const handleMessage = async (text) => {
     }
 
     if (services.length === 0) {
-        return Promise.resolve([`I'm not sure I understand you...`]);
+        return handleUnrecognizedService(text);
     }
 
     return Promise.all(services.map(service => service(reqParams)))
