@@ -1,6 +1,9 @@
 const axios = require('axios');
 const { youtubeApiKey } = require('../config');
 
+const { createLink } = require('../formattingMessages');
+
+const youtubeWatchUrl = 'https://www.youtube.com/watch?v=';
 const apiUrl = 'https://www.googleapis.com/youtube/v3/search';
 const queryParams = {
     key: youtubeApiKey,
@@ -35,17 +38,24 @@ const fetchFromYoutube = async (searchParams) => {
     }
 
     try {
-        const { data } = await axios.get(apiUrl, {
+        const { data: { items } } = await axios.get(apiUrl, {
             params: { ...queryParams },
         });
 
-        console.log('youtube res', JSON.stringify(data));
+        return items.map((it) => {
+            const {
+                id: { videoId },
+                snippet: { title },
+            } = it;
+            
+            const link = `${youtubeWatchUrl}${videoId}`;
+            return createLink(link, title);
+        }).join('\n- ');
+
     } catch (error) {
         console.error('fetchFromYoutube error', searchParams, error.message);
         return 'Oooppss, I couldn\'t help with youtube';
     }
-
-    return 'Yay, look at me!';
 };
 
 module.exports = {
