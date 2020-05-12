@@ -15,7 +15,8 @@ const isQouting = (char) => {
         || char === '\'';
 };
 
-const handleMessage = async (text, session) => {
+const handleMessage = async (text, sessionMessages, isOnPublicChannel) => {
+    // TODO: relate to sessionMessages?
     const words = text.split(' ');
     const service = servicesMap[words[0]];
     const reqParams = {};
@@ -76,7 +77,7 @@ const handleMessage = async (text, session) => {
     }
 
     if (!service) {
-        return handleUnrecognizedService(text);
+        return handleUnrecognizedService(text, sessionMessages, isOnPublicChannel);
     }
 
     return service(reqParams)

@@ -5,6 +5,7 @@ const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
 
 let botUser = null;
+let channels = [];
 
 const bot = new SlackBot({
     token: botToken,
@@ -20,6 +21,8 @@ bot.on('start', async () => {
     try {
         const { members } = await bot.getUsers();
         botUser = members.find(user => user.name === botName);
+        
+        channels = (await bot.getChannels()).channels;
     } catch (error) {
         console.error('bot.getUsers() error', error);
     }
@@ -29,24 +32,27 @@ bot.on('start', async () => {
 bot.on('message', async (data) => {
     const { text = '', type, channel, user } = data;
     const { id: botId = 'botId' } = botUser || {};
-
-    if (type !== 'message') {
+    
+    if (type !== 'message' || !user) {
         return;
     }
-
+    
     const session = await sessions.getSession(user);
     if (!session && text.indexOf(botId) === -1) {
         return;
     }
 
-    const msgText = text.replace(`<@${botId}>`, '');
+    const isPublicChannel = channels.some((ch) => ch.id === channel);
+
+    const msgText = text.replace(`<@${botId}>`, '').trim();
     await sessions.setSession(user, msgText);
-    const respond = await handleMessage(msgText.trim(), session || []);
+    const respond = await handleMessage(msgText, session || [], isPublicChannel);
 
     if (Array.isArray(respond)) {
-        respond.forEach((msg) => {
-            bot.postMessage(channel, msg);
-        });
+        Promise.all(respond.map((msg) => bot.postMessage(channel, msg)))
+            .catch((error) => {
+                console.error('error on multi postMessage', error);
+            });
     }
 
     if (typeof respond === 'string') {

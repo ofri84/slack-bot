@@ -39,7 +39,6 @@ const getList = async (key) => {
 
     return new Promise((resolve, reject) => {
         client.lrange(key, 0, -1, (err, val) => {
-            console.log('lrange', val);
             if (val && val.length > 0) {
                 return resolve(val);
             }
