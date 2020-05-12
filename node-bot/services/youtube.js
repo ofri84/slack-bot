@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { youtubeApiKey } = require('../config');
 
-const { createLink } = require('../formattingMessages');
+const { createLink, msgList } = require('../formattingMessages');
 
 const youtubeWatchUrl = 'https://www.youtube.com/watch?v=';
 const apiUrl = 'https://www.googleapis.com/youtube/v3/search';
@@ -12,6 +12,8 @@ const queryParams = {
     type: 'video,channel',
 };
 
+const isYoutubeSupported = !!youtubeApiKey;
+
 const fetchFromYoutube = async (searchParams) => {
     const {
         subject,
@@ -20,7 +22,7 @@ const fetchFromYoutube = async (searchParams) => {
         minMinutes = 0,
     } = searchParams;
 
-    if (!youtubeApiKey || !subject) {
+    if (!isYoutubeSupported || !subject) {
         return 'Sorry, I can\'t help you with youtube search...';
     }
 
@@ -28,7 +30,7 @@ const fetchFromYoutube = async (searchParams) => {
     queryParams.maxResults = maxSongs;
 
     if (maxMinutes || minMinutes) {
-        if (maxMinutes <= 4) {
+        if (maxMinutes && maxMinutes <= 4) {
             queryParams.videoDuration = 'short';
         } else if (minMinutes >= 20) {
             queryParams.videoDuration = 'long';
@@ -42,7 +44,7 @@ const fetchFromYoutube = async (searchParams) => {
             params: { ...queryParams },
         });
 
-        return items.map((it) => {
+        const list = items.map((it) => {
             const {
                 id: { videoId },
                 snippet: { title },
@@ -50,14 +52,25 @@ const fetchFromYoutube = async (searchParams) => {
             
             const link = `${youtubeWatchUrl}${videoId}`;
             return createLink(link, title);
-        }).join('\n- ');
+        });
 
+        return msgList(list);
+    
     } catch (error) {
         console.error('fetchFromYoutube error', searchParams, error.message);
         return 'Oooppss, I couldn\'t help with youtube';
     }
 };
 
+const youtubeHelp = async () => {
+    return Promise.resolve([
+        'Usage example:  youtube "Moishe Oofnik" max 10 songs min 15 minutes',
+        'Parameters to search: max songs, max/min minutes',
+    ]);
+};
+
 module.exports = {
     fetchFromYoutube,
+    isYoutubeSupported,
+    youtubeHelp,
 };

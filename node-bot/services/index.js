@@ -1,5 +1,11 @@
+const { help: helpService } = require('./help');
 const { handleUnrecognizedService } = require('./misc');
 const { fetchFromYoutube } = require('./youtube');
+
+const servicesMap = {
+    youtube: fetchFromYoutube,
+    help: helpService,
+};
 
 const isQouting = (char) => {
     return char === '“'
@@ -11,13 +17,13 @@ const isQouting = (char) => {
 
 const handleMessage = async (text) => {
     const words = text.split(' ');
-    const services = [];
+    const service = servicesMap[words[0]];
     const reqParams = {};
 
-    let index = 0;
+    let index = 1;
     while (index < words.length) {
-        if (words[index] === 'music' || words[index] === 'youtube') {
-            services.push(fetchFromYoutube);
+        if (words[0] === 'help' && index === 1) {
+            reqParams.service = words[index];
         }
 
         if (isQouting(words[index].charAt(0))) {
@@ -69,11 +75,11 @@ const handleMessage = async (text) => {
         index++;
     }
 
-    if (services.length === 0) {
+    if (!service) {
         return handleUnrecognizedService(text);
     }
 
-    return Promise.all(services.map(service => service(reqParams)))
+    return service(reqParams)
         .catch((error) => {
             console.error('error on handleMessage Promise.all', text, error);
             return ['Ooopppsss... I can\'t help you...'];

@@ -32,10 +32,17 @@ bot.on('message', async (data) => {
     }
 
     const msgText = text.replace(`<@${botId}>`, '');
-    const messages = await handleMessage(msgText.trim());
-    messages.forEach((msg) => {
-        bot.postMessage(channel, msg);
-    });
+    const respond = await handleMessage(msgText.trim());
+
+    if (Array.isArray(respond)) {
+        respond.forEach((msg) => {
+            bot.postMessage(channel, msg);
+        });
+    }
+
+    if (typeof respond === 'string') {
+        bot.postMessage(channel, respond);
+    }
 });
 
 // Error Handler
