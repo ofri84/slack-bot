@@ -1,4 +1,5 @@
 const SlackBot = require('slackbots');
+const sessions = require('./sessions/index');
 
 const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
@@ -14,6 +15,8 @@ const bot = new SlackBot({
 bot.on('start', async () => {
     console.log(`${botName} start`);
 
+    sessions.initCache();
+
     try {
         const { members } = await bot.getUsers();
         botUser = members.find(user => user.name === botName);
@@ -24,15 +27,21 @@ bot.on('start', async () => {
 
 // Message Handler
 bot.on('message', async (data) => {
-    const { text = '', type, channel } = data;
+    const { text = '', type, channel, user } = data;
     const { id: botId = 'botId' } = botUser || {};
 
-    if (type !== 'message' || text.indexOf(botId) === -1) {
+    if (type !== 'message') {
+        return;
+    }
+
+    const session = await sessions.getSession(user);
+    if (!session && text.indexOf(botId) === -1) {
         return;
     }
 
     const msgText = text.replace(`<@${botId}>`, '');
-    const respond = await handleMessage(msgText.trim());
+    await sessions.setSession(user, msgText);
+    const respond = await handleMessage(msgText.trim(), session || []);
 
     if (Array.isArray(respond)) {
         respond.forEach((msg) => {

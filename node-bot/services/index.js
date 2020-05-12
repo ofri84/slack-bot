@@ -15,7 +15,7 @@ const isQouting = (char) => {
         || char === '\'';
 };
 
-const handleMessage = async (text) => {
+const handleMessage = async (text, session) => {
     const words = text.split(' ');
     const service = servicesMap[words[0]];
     const reqParams = {};

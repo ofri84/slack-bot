@@ -6,8 +6,20 @@ services:
             context: ./node-bot
             dockerfile: Dockerfile
         volumes:
-            - ./node_main:/app
+            - ./node-bot:/app
             - /app/node_modules
+        depends_on:
+            - redis
         environment:
-            - BOT_NAME: benny
+            BOT_NAME: benny
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
         command: npm run start
+
+    redis:
+        image: redis
+        container_name: redis
+        expose:
+            - 6379
+        ports:
+            - 6379:6379
