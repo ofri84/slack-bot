@@ -19,7 +19,7 @@ docker-compose up
 
 ## Services
 
-if you want to have an option to search songs in youtube you need to obtain a google api token for youtube data and assing it to YOUTUBE_API_KEY field in your .env file. (youtube token)[https://developers.google.com/youtube/v3/docs]
+if you want to have an option to search songs in youtube you need to obtain a google api token for youtube data and assing it to YOUTUBE_API_KEY field in your .env file. [https://developers.google.com/youtube/v3/docs]
 
 ## Conversations
 
