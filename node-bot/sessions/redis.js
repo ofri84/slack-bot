@@ -32,6 +32,7 @@ const get = async (key) => {
     });
 };
 
+// return a list of items or null
 const getList = async (key) => {
     if (!client) {
         return Promise.resolve(null);
@@ -83,7 +84,8 @@ const pushToList = async (key, val, options = {}) => {
 
     return new Promise((resolve, reject) => {
         try {
-            client.rpush([key, val], (err, reply) => {
+            const values = Array.isArray(val) ? val : [val];
+            client.rpush([key, ...values], (err, reply) => {
                 if (err) {
                     throw err;
                 }
