@@ -53,7 +53,7 @@ bot.on('message', async (data) => {
 
     const msgText = text.replace(`<@${botId}>`, '').trim();
     await sessions.setSession(user, msgText);
-    const respond = await handleMessage(msgText, session || [], isPublicChannel);
+    const respond = await handleMessage(user, msgText, session || [], isPublicChannel);
 
     if (Array.isArray(respond)) {
         Promise.all(respond.map((msg) => bot.postMessage(channel, msg)))

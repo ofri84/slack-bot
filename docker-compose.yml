@@ -1,5 +1,19 @@
 version: "3"
 services:
+    node-rest:
+        container_name: node-rest
+        build: 
+            context: ./node-rest
+            dockerfile: Dockerfile
+        volumes:
+            - ./node-rest:/app
+            - /app/node_modules
+        environment:
+            PORT: 3000
+        ports:
+            - 3000:3000
+        command: npm run start
+
     node-bot:
         container_name: node-bot
         build:
@@ -14,6 +28,7 @@ services:
             BOT_NAME: benny
             REDIS_HOST: redis
             REDIS_PORT: 6379
+            CLICKS_API_PORT: 3000
         command: npm run start
 
     redis:

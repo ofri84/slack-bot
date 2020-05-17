@@ -15,11 +15,11 @@ const isQouting = (char) => {
         || char === '\'';
 };
 
-const handleMessage = async (text, sessionMessages, isOnPublicChannel) => {
+const handleMessage = async (userId, text, sessionMessages, isOnPublicChannel) => {
     // TODO: relate to sessionMessages?
     const words = text.split(' ');
     const service = servicesMap[words[0]];
-    const reqParams = {};
+    const reqParams = { userId };
 
     let index = 1;
     while (index < words.length) {

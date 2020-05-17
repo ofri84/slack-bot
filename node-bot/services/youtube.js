@@ -1,14 +1,13 @@
 const axios = require('axios');
-const { youtubeApiKey } = require('../config');
+const { youtubeApiKey,clicksUrl } = require('../config');
 
 const { createLink, msgList } = require('../formattingMessages');
 
-const youtubeWatchUrl = 'https://www.youtube.com/watch?v=';
 const apiUrl = 'https://www.googleapis.com/youtube/v3/search';
 const queryParams = {
     key: youtubeApiKey,
     part: 'snippet',
-    order: 'viewCount',
+    // order: 'viewCount',
     type: 'video,channel',
 };
 
@@ -16,6 +15,7 @@ const isYoutubeSupported = !!youtubeApiKey;
 
 const fetchFromYoutube = async (searchParams) => {
     const {
+        userId,
         subject,
         maxSongs = 50,
         maxMinutes = 0,
@@ -49,8 +49,10 @@ const fetchFromYoutube = async (searchParams) => {
                 id: { videoId },
                 snippet: { title },
             } = it;
-            
-            const link = `${youtubeWatchUrl}${videoId}`;
+
+            const { protocol, host, port } = clicksUrl;
+            const link = `${protocol}://${host}:${port}/click/youtube?userId=${userId}&videoId=${videoId}`;
+
             return createLink(link, title);
         });
 
