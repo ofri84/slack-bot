@@ -5,7 +5,8 @@ const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
 
 let botUser = null;
-let channels = [];
+let publicChannels = [];
+let botChannels = [];
 
 const bot = new SlackBot({
     token: botToken,
@@ -22,7 +23,11 @@ bot.on('start', async () => {
         const { members } = await bot.getUsers();
         botUser = members.find(user => user.name === botName);
         
-        channels = (await bot.getChannels()).channels;
+        const { channels } = await bot.getChannels();
+        publicChannels = channels;
+
+        const { ims } = await bot.getImChannels();
+        botChannels = ims;
     } catch (error) {
         console.error('bot.getUsers() error', error);
     }
@@ -37,12 +42,14 @@ bot.on('message', async (data) => {
         return;
     }
     
+    const isBotChannel = botChannels.some((ch) => ch.id === channel);
     const session = await sessions.getSession(user);
-    if (!session && text.indexOf(botId) === -1) {
+    // verify its a message referring to the bot
+    if (!isBotChannel && !session && text.indexOf(botId) === -1) {
         return;
     }
 
-    const isPublicChannel = channels.some((ch) => ch.id === channel);
+    const isPublicChannel = publicChannels.some((ch) => ch.id === channel);
 
     const msgText = text.replace(`<@${botId}>`, '').trim();
     await sessions.setSession(user, msgText);
