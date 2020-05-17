@@ -2,6 +2,8 @@
 
 this is a bot for slack, using Node.js and Redis.
 
+It can have a conversation according to your specification (see Conversations section) and also it performs a youtube search (see Service section).
+
 in order to run it (locally) you need to install Docker.
 
 ## Running
@@ -33,8 +35,11 @@ if you want to add answers to input texts:
 
 ## Usage
 
-init a conversation with the bot by mentioning the bot name directly. e.g. '@benny here?'
-afterwards a session of your user and the bot will be held for 30 seconds (see config.js), so you won't have to mention the bit name every time
+in order to init a conversation session with the bot you can write him on the private channel, or mention him on the public channel, e.g.: '@benny here?'
+in each one of the two cases, a session of your user and the bot will be held for 30 seconds (see config.js), so if you write him on a public channel you won't have to mention the bot name every time.
+
+you can write: 'help' or '@benny help', in order to use the bot help service.
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
