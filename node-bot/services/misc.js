@@ -1,6 +1,6 @@
 const axios = require('axios');
 const { botAnswersUrl } = require('../config');
-const redisClient = require('../sessions/redis');
+import { getList, pushToList } from '../sessions/redisClient';
 
 const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChannel) => {
     // TODO: relate to sessionMessages?
@@ -14,7 +14,7 @@ const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChanne
     let insertedBotAnswer = false;
     if (botAnswersUrl) {
         let rows = [];
-        const cachedAnswers = await redisClient.getList(userInput);
+        const cachedAnswers = await getList(userInput);
         if (cachedAnswers) {
             rows.push(`${userInput},${cachedAnswers.join(',')}`);
         } else {
@@ -32,7 +32,7 @@ const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChanne
                 messagesReply.unshift(answer);
                 insertedBotAnswer = true;
 
-                redisClient.pushToList(userInput, cleanAnswers, { ttl: 86400 }); // expired after one day
+                pushToList(userInput, cleanAnswers, { ttl: 86400 }); // expired after one day
                 break;
             }
         }

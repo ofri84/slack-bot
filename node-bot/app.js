@@ -1,5 +1,5 @@
 const SlackBot = require('slackbots');
-const sessions = require('./sessions/index');
+const { initCache, getSession, setSession } = require('./sessions/session');
 
 const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
@@ -17,7 +17,7 @@ const bot = new SlackBot({
 bot.on('start', async () => {
     console.log(`${botName} start`);
 
-    sessions.initCache();
+    initCache();
 
     try {
         const { members } = await bot.getUsers();
@@ -43,7 +43,7 @@ bot.on('message', async (data) => {
     }
     
     const isBotChannel = botChannels.some((ch) => ch.id === channel);
-    const session = await sessions.getSession(user);
+    const session = await getSession(user);
     // verify its a message referring to the bot
     if (!isBotChannel && !session && text.indexOf(botId) === -1) {
         return;
@@ -52,7 +52,7 @@ bot.on('message', async (data) => {
     const isPublicChannel = publicChannels.some((ch) => ch.id === channel);
 
     const msgText = text.replace(`<@${botId}>`, '').trim();
-    await sessions.setSession(user, msgText);
+    await setSession(user, msgText);
     const respond = await handleMessage(user, msgText, session || [], isPublicChannel);
 
     if (Array.isArray(respond)) {
