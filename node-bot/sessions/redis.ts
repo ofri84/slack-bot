@@ -1,28 +1,34 @@
 const redis = require('redis');
+import { RedisClient } from "redis";
 
 const { redisHost, redisPort } = require('../config');
 
-let client = null;
+interface Options {
+    ttl: number;
+}
+const defOptions: Partial<Options> = { ttl: 600 }; 
 
-const initRedis = () => {
+let client: RedisClient | null = null;
+
+const initRedis = () =>  {
     client = redis.createClient({
         host: redisHost,
         port: redisPort,
     });
 
-    client.on('error', (error) => {
+    client?.on('error', (error) => {
         console.error('redis error', error);
     });
 };
 
 // we wrap it with 'Promise' in case get/set will be async in the future
-const get = async (key) => {
+const get = async (key: string): Promise<any | null> => {
     if (!client) {
         return Promise.resolve(null);
     }
 
     return new Promise((resolve, reject) => {
-        client.get(key, (err, val) => {
+        client?.get(key, (err, val) => {
             if (val) {
                 return resolve(val);
             }
@@ -33,13 +39,13 @@ const get = async (key) => {
 };
 
 // return a list of items or null
-const getList = async (key) => {
+const getList = async (key: string): Promise<any[] | null> => {
     if (!client) {
         return Promise.resolve(null);
     }
 
     return new Promise((resolve, reject) => {
-        client.lrange(key, 0, -1, (err, val) => {
+        client?.lrange(key, 0, -1, (err, val) => {
             if (val && val.length > 0) {
                 return resolve(val);
             }
@@ -50,21 +56,21 @@ const getList = async (key) => {
 };
 
 // we wrap it with 'Promise' in case get/set will be async in the future
-const set = async (key, val, options = {}) => {
-    const { ttl = 10 * 60 } = options;
-
+const set = async (key: string, val: any, options = defOptions): Promise<object> => {
+    const { ttl = defOptions.ttl } = options;
+    
     if (!client) {
         return Promise.resolve({ status: 'error', error: 'no redis client' });
     }
 
     return new Promise((resolve, reject) => {
         try {
-            client.set(key, val, (err) => {
+            client?.set(key, val, (err) => {
                 if (err) {
                     throw err;
                 }
     
-                client.expire(key, ttl);
+                client?.expire(key, ttl!!);
     
                 return resolve({ status: 'ok' });
             });
@@ -75,8 +81,8 @@ const set = async (key, val, options = {}) => {
     });
 };
 
-const pushToList = async (key, val, options = {}) => {
-    const { ttl = 10 * 60 } = options;
+const pushToList = async (key: string, values: string[], options = defOptions): Promise<object> => {
+    const { ttl = defOptions.ttl } = options;
 
     if (!client) {
         return Promise.resolve({ status: 'error', error: 'no redis client' });
@@ -84,18 +90,14 @@ const pushToList = async (key, val, options = {}) => {
 
     return new Promise((resolve, reject) => {
         try {
-            const values = Array.isArray(val) ? val : [val];
-            client.rpush([key, ...values], (err, reply) => {
-                if (err) {
-                    throw err;
-                }
-    
-                client.expire(key, ttl);
-    
-                return resolve({ status: 'ok' });
-            });
+            const res = client?.rpush(key, values);
+            if (!res) {
+                throw new Error(`fail to insert items per key ${key}`);
+            }
+            client?.expire(key, ttl!!);
+            return resolve({ status: 'ok' });
         } catch (error) {
-            console.error('redis error on rpush', key, val, error);
+            console.error('redis error on rpush', key, values, error);
             return resolve({ status: 'error', error: error.message });
         }
     });

@@ -12,7 +12,7 @@ const getSession = async (user) => {
 };
 
 const setSession = async (user, text) => {
-    const { status } = await redisClient.pushToList(user, text, { ttl: chatSessionPeriod });
+    const { status } = await redisClient.pushToList(user, [text], { ttl: chatSessionPeriod });
 
     return status;
 };
