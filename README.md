@@ -1,6 +1,6 @@
 # Slack-Bot
 
-this is a bot for slack, using Node.js and Redis.
+this is a bot for slack, using Node.js (Typescript) and Redis.
 
 It can have a conversation according to your specification (see Conversations section) and also it performs a youtube search (see Service section).
 
