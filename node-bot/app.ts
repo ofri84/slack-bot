@@ -1,12 +1,14 @@
+///<reference path="./@types/slackbots.d.ts" />
+import { User, Channel, MessageData } from 'slackbots';
 const SlackBot = require('slackbots');
 const { initCache, getSession, setSession } = require('./sessions/session');
 
 const { botName, botToken } = require('./config');
 const { handleMessage } = require('./services/index');
 
-let botUser = null;
-let publicChannels = [];
-let botChannels = [];
+let botUser: Partial<User> | null | undefined = null;
+let publicChannels: Partial<Channel>[] = [];
+let botChannels: Partial<Channel>[] = [];
 
 const bot = new SlackBot({
     token: botToken,
@@ -21,7 +23,7 @@ bot.on('start', async () => {
 
     try {
         const { members } = await bot.getUsers();
-        botUser = members.find(user => user.name === botName);
+        botUser = members.find((user: Partial<User>) => user.name === botName);
         
         const { channels } = await bot.getChannels();
         publicChannels = channels;
@@ -34,13 +36,13 @@ bot.on('start', async () => {
 });
 
 // Message Handler
-bot.on('message', async (data) => {
+bot.on('message', async (data: Partial<MessageData>) => {
     const { text = '', type, channel, user } = data;
     const { id: botId = 'botId' } = botUser || {};
     
     if (type !== 'message' || !user) {
         return;
-    }
+    }    
     
     const isBotChannel = botChannels.some((ch) => ch.id === channel);
     const session = await getSession(user);
@@ -56,19 +58,19 @@ bot.on('message', async (data) => {
     const respond = await handleMessage(user, msgText, session || [], isPublicChannel);
 
     if (Array.isArray(respond)) {
-        Promise.all(respond.map((msg) => bot.postMessage(channel, msg)))
+        Promise.all(respond.map((msg) => bot.postMessage(channel!!, msg)))
             .catch((error) => {
                 console.error('error on multi postMessage', error);
             });
     }
 
     if (typeof respond === 'string') {
-        bot.postMessage(channel, respond);
+        bot.postMessage(channel!!, respond);
     }
 });
 
 // Error Handler
-bot.on('error', (err) => {
+bot.on('error', (err: Error) => {
     console.error('bot error', err);
 
     // ## slack app bug: not_allowed_token_type
