@@ -1,13 +1,13 @@
-const { help: helpService } = require('./help');
-const { handleUnrecognizedService } = require('./misc');
-const { fetchFromYoutube } = require('./youtube');
+import { help as helpService } from './help';
+import { handleUnrecognizedService } from './misc';
+import { fetchFromYoutube } from './youtube';
 
-const servicesMap = {
+const servicesMap: Record<string, (...args: any[]) => any> = {
     youtube: fetchFromYoutube,
     help: helpService,
 };
 
-const isQouting = (char) => {
+const isQouting = (char: string): boolean => {
     return char === '“'
         || char === '”'
         || char === '’'
@@ -15,11 +15,18 @@ const isQouting = (char) => {
         || char === '\'';
 };
 
-const handleMessage = async (userId, text, sessionMessages, isOnPublicChannel) => {
-    // TODO: relate to sessionMessages?
+export const handleMessage = async (
+    userId: string,
+    text: string,
+    sessionMessages: string [],
+    isOnPublicChannel: boolean)
+    :Promise<string | string[]> => {
+
+    // we can also relate to sessionMessages
+
     const words = text.split(' ');
     const service = servicesMap[words[0]];
-    const reqParams = { userId };
+    const reqParams: any = { userId };
 
     let index = 1;
     while (index < words.length) {
@@ -81,12 +88,8 @@ const handleMessage = async (userId, text, sessionMessages, isOnPublicChannel) =
     }
 
     return service(reqParams)
-        .catch((error) => {
+        .catch((error: Error) => {
             console.error('error on handleMessage Promise.all', text, error);
             return ['Ooopppsss... I can\'t help you...'];
         });
-};
-
-module.exports = {
-    handleMessage,
 };

@@ -1,15 +1,19 @@
-const { isYoutubeSupported, youtubeHelp } = require('./youtube');
-const { msgList } = require('../formattingMessages');
+import { isYoutubeSupported, youtubeHelp } from './youtube';
+import { msgList } from '../formattingMessages';
 
-const supportedServices = {
+export interface HelpInput {
+    service: string,
+};
+
+const supportedServices: Record<string, boolean> = {
     youtube: isYoutubeSupported,
 };
 
-const servicesMap = {
+const servicesMap: Record<string, (...args: any[]) => any> = {
     youtube: youtubeHelp,
 };
 
-const help = async ({ service }) => {
+export const help = async ({ service }: HelpInput): Promise<string | string[]> => {
     const defaultMessage = 'Ooohh, it seems that we can only have a small talk with each other...';
 
     if (!service) {
@@ -29,8 +33,4 @@ const help = async ({ service }) => {
     return servicesMap[service]
         ? servicesMap[service]()
         : Promise.resolve(defaultMessage);
-};
-
-module.exports = {
-    help,
 };

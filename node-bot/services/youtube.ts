@@ -1,19 +1,22 @@
+///<reference path="../@types/youtube.d.ts" />
+import { SearchParams, YoutubeQuery, YoutubeItem } from 'youtube';
+
 const axios = require('axios');
 const { youtubeApiKey,clicksUrl } = require('../config');
 
-const { createLink, msgList } = require('../formattingMessages');
+import { createLink, msgList } from '../formattingMessages';
 
 const apiUrl = 'https://www.googleapis.com/youtube/v3/search';
-const queryParams = {
+const queryParams: YoutubeQuery = {
     key: youtubeApiKey,
     part: 'snippet',
     // order: 'viewCount',
     type: 'video,channel',
 };
 
-const isYoutubeSupported = !!youtubeApiKey;
+export const isYoutubeSupported = !!youtubeApiKey;
 
-const fetchFromYoutube = async (searchParams) => {
+export const fetchFromYoutube = async (searchParams: SearchParams): Promise<string> => {
     const {
         userId,
         subject,
@@ -44,7 +47,7 @@ const fetchFromYoutube = async (searchParams) => {
             params: { ...queryParams },
         });
 
-        const list = items.map((it) => {
+        const list = items.map((it: Partial<YoutubeItem>) => {
             const {
                 id: { videoId },
                 snippet: { title },
@@ -64,15 +67,9 @@ const fetchFromYoutube = async (searchParams) => {
     }
 };
 
-const youtubeHelp = async () => {
+export const youtubeHelp = async (): Promise<string[]> => {
     return Promise.resolve([
         'Usage example:  youtube "Moishe Oofnik" max 10 songs min 15 minutes',
         'Parameters to search: max songs, max/min minutes',
     ]);
-};
-
-module.exports = {
-    fetchFromYoutube,
-    isYoutubeSupported,
-    youtubeHelp,
 };

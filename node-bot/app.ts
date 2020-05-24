@@ -1,10 +1,11 @@
 ///<reference path="./@types/slackbots.d.ts" />
 import { User, Channel, MessageData } from 'slackbots';
 const SlackBot = require('slackbots');
-const { initCache, getSession, setSession } = require('./sessions/session');
+
+import { initCache, getSession, setSession } from './sessions/session';
+import { handleMessage } from './services/index';
 
 const { botName, botToken } = require('./config');
-const { handleMessage } = require('./services/index');
 
 let botUser: Partial<User> | null | undefined = null;
 let publicChannels: Partial<Channel>[] = [];

@@ -2,10 +2,16 @@ const axios = require('axios');
 const { botAnswersUrl } = require('../config');
 import { getList, pushToList } from '../sessions/redisClient';
 
-const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChannel) => {
-    // TODO: relate to sessionMessages?
-    const messagesReply = [];
-    const userInput = text.toLowerCase();
+export const handleUnrecognizedService = async (
+    text: string,
+    sessionMessages: string[],
+    isOnPublicChannel: boolean)
+    : Promise<string[]> => {
+
+    // we can relate to sessionMessages as well
+
+    const messagesReply: string[] = [];
+    const userInput: string = text.toLowerCase();
 
     if (isOnPublicChannel) {
         messagesReply.push('Would like to move to my privte channel?');
@@ -26,7 +32,7 @@ const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChanne
             const [inputKey, ...answers] = rows[i].split(',');
 
             if (inputKey.toLowerCase() === userInput) {
-                const cleanAnswers = answers.filter(ans => ans.length > 0 && ans !== '\r');
+                const cleanAnswers = answers.filter((ans: string) => ans.length > 0 && ans !== '\r');
                 const randomIndex = Math.floor(Math.random() * cleanAnswers.length);
                 const answer = cleanAnswers[randomIndex].replace('\r', '');
                 messagesReply.unshift(answer);
@@ -43,8 +49,4 @@ const handleUnrecognizedService = async (text, sessionMessages, isOnPublicChanne
     }
 
     return Promise.resolve(messagesReply);
-};
-
-module.exports = {
-    handleUnrecognizedService,
 };
