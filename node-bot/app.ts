@@ -5,7 +5,7 @@ const SlackBot = require('slackbots');
 import { initCache, getSession, setSession } from './sessions/session';
 import { handleMessage } from './services/index';
 
-const { botName, botToken } = require('./config');
+import {  botName, botToken } from './config';
 
 let botUser: Partial<User> | null | undefined = null;
 let publicChannels: Partial<Channel>[] = [];

@@ -2,8 +2,8 @@
 import { SearchParams, YoutubeQuery, YoutubeItem } from 'youtube';
 
 const axios = require('axios');
-const { youtubeApiKey,clicksUrl } = require('../config');
 
+import { youtubeApiKey,clicksUrl } from '../config';
 import { createLink, msgList } from '../formattingMessages';
 
 const apiUrl = 'https://www.googleapis.com/youtube/v3/search';

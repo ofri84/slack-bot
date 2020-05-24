@@ -8,7 +8,7 @@ declare module "youtube" {
     };
     
     export interface YoutubeQuery {
-        key: string,
+        key: string | null,
         part: string,
         type: string,
         q?: string,

@@ -1,4 +1,4 @@
-const { chatSessionPeriod } = require('../config');
+import { chatSessionPeriod } from '../config';
 import { initRedis, getList, pushToList } from './redisClient';
 
 export const initCache = (): void => {

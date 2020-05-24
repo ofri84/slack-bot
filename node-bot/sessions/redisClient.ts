@@ -1,6 +1,6 @@
 import redis from 'redis';
 
-const { redisHost, redisPort } = require('../config');
+import { redisHost, redisPort } from '../config';
 
 export interface Options {
      ttl: number;
@@ -17,7 +17,7 @@ let client: redis.RedisClient | null = null;
 export const initRedis = (): void =>  {
     client = redis.createClient({
         host: redisHost,
-        port: redisPort,
+        port: parseInt(redisPort),
     });
 
     client?.on('error', (error) => {

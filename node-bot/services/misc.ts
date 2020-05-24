@@ -1,5 +1,5 @@
 const axios = require('axios');
-const { botAnswersUrl } = require('../config');
+import { botAnswersUrl } from '../config';
 import { getList, pushToList } from '../sessions/redisClient';
 
 export const handleUnrecognizedService = async (
